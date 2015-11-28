@@ -4,26 +4,65 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.Callable;
 
 public class LinkedList<T> implements List<T> {
-	
-	private boolean mAnElementWasAdded = false;
+
+	private class Node<T> {
+		private T mElement;
+		private Node<T> mNext;
+
+		public Node(T element, Node<T> next) {
+			mElement = element;
+			mNext = next;
+		}
+
+		public Node<T> getNext() {
+			return mNext;
+		}
+
+		public T getElement() {
+			return mElement;
+		}
+
+		public void setNext(Node<T> newNode) {
+			mNext = newNode;
+		}
+	}
+
+	private Node<T> mHead = null;
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 1;
+		NodeCallback<Integer, T> func = new NodeCallback<Integer, T>() {
+
+			@Override
+			public Integer call(Integer accumulator, LinkedList<T>.Node<T> currentNode) {
+				return accumulator + 1;
+			}
+
+		};
+
+		return reduceNodes(0, func);
 	}
-	
+
 	@Override
 	public boolean isEmpty() {
-		return !mAnElementWasAdded;
+		return size() == 0;
 	}
 
 	@Override
 	public boolean contains(Object element) {
-		// TODO Auto-generated method stub
-		return false;
+		NodeCallback<Boolean, T> containsElement = new NodeCallback<Boolean, T>() {
+
+			@Override
+			public Boolean call(Boolean accumulator, Node<T> currentNode) {
+				return accumulator || currentNode.getElement().equals(element);
+			}
+			
+		};
+		
+		return reduceNodes(false, containsElement);
 	}
 
 	@Override
@@ -46,8 +85,26 @@ public class LinkedList<T> implements List<T> {
 
 	@Override
 	public boolean add(T element) {
-		mAnElementWasAdded = true;
-		return mAnElementWasAdded;
+		Node<T> newNode = new Node<T>(element, null);
+
+		if (mHead == null) {
+			mHead = newNode;
+		} else {
+			NodeCallback<Node<T>, T> cb = new NodeCallback<LinkedList<T>.Node<T>, T>() {
+
+				@Override
+				public LinkedList<T>.Node<T> call(LinkedList<T>.Node<T> accumulator,
+						LinkedList<T>.Node<T> currentNode) {
+					return currentNode;
+				}
+			};
+
+			Node<T> lastNode = reduceNodes(null, cb);
+			lastNode.setNext(newNode);
+
+		}
+
+		return true;
 	}
 
 	@Override
@@ -89,13 +146,13 @@ public class LinkedList<T> implements List<T> {
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void add(int index, T element) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -146,4 +203,23 @@ public class LinkedList<T> implements List<T> {
 		return null;
 	}
 
+	private <A> A reduceNodes(A accumulator, NodeCallback<A, T> callback) {
+		if (mHead == null) {
+			return accumulator;
+		}
+
+		Node<T> currentNode = mHead;
+
+		while (currentNode != null) {
+			accumulator = callback.call(accumulator, currentNode);
+			currentNode = currentNode.getNext();
+		}
+
+		return accumulator;
+
+	}
+
+	private interface NodeCallback<A, T> {
+		public A call(A accumulator, LinkedList<T>.Node<T> currentNode);
+	}
 }
