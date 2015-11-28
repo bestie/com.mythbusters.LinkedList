@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Callable;
 
+import javax.lang.model.element.Element;
+
 public class LinkedList<T> implements List<T> {
 
 	private class Node<T> {
@@ -106,6 +108,16 @@ public class LinkedList<T> implements List<T> {
 
 		return true;
 	}
+	
+
+	@Override
+	public void add(int index, T element) {
+		Node<T> prevNode = getNodeByIndex(index - 1);
+		Node<T> nextNode = prevNode.getNext();
+		
+		Node<T> newNode = new Node<T>(element, nextNode);
+		prevNode.setNext(newNode);
+	}
 
 	@Override
 	public boolean remove(Object element) {
@@ -150,12 +162,6 @@ public class LinkedList<T> implements List<T> {
 	}
 
 	@Override
-	public void add(int index, T element) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public int indexOf(Object element) {
 		// TODO Auto-generated method stub
 		return 0;
@@ -187,8 +193,12 @@ public class LinkedList<T> implements List<T> {
 
 	@Override
 	public T get(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		Node<T> node = getNodeByIndex(index);
+		if (node != null) {
+			return node.getElement();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -203,6 +213,23 @@ public class LinkedList<T> implements List<T> {
 		return null;
 	}
 
+	private Node<T> getNodeByIndex(int index) {
+		NodeCallback<Node<T>, T> nodeRetriever = new NodeCallback<Node<T>, T>() {
+			int mCurrentPointer = 0;
+
+			@Override
+			public Node<T> call(Node<T> accumulator, Node<T> currentNode) {
+				if (mCurrentPointer++ == index) {
+					return currentNode;
+				} else {
+					return accumulator;
+				}
+			}
+		}; 
+		
+		return reduceNodes(null, nodeRetriever);
+	}
+	
 	private <A> A reduceNodes(A accumulator, NodeCallback<A, T> callback) {
 		if (mHead == null) {
 			return accumulator;

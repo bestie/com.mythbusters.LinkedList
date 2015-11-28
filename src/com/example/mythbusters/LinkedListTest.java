@@ -1,8 +1,9 @@
 package com.example.mythbusters;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -63,6 +64,18 @@ public class LinkedListTest {
 	}
 	
 	@Test
+	public void testListContainsSpecialAddedItems() {
+		int itemCount = 29;
+		LinkedList<String> newList = listWithNItems(itemCount);
+		String element = "bees";
+		
+		int insertPosition = itemCount - 2;
+		newList.add(insertPosition, element);
+		
+		assertEquals(element, newList.get(insertPosition));
+	}
+	
+	@Test
 	public void testListDoesNotContainMissingItems() {
 		int itemCount = 29;
 		int nonContainingIndex = itemCount + 27;
@@ -76,5 +89,26 @@ public class LinkedListTest {
 	@Test
 	public void testEmptyListDoesNotContainNotItems() {
 		assertFalse(emptyList().contains("nothing"));
+	}
+	
+	@Test
+	public void testGetReturnsNullForAbsentElement() {
+		int itemCount = 3;
+		int nonContainingIndex = itemCount + 57;
+		
+		LinkedList<String> newList = listWithNItems(itemCount);
+		
+		assertNull(newList.get(nonContainingIndex));
+	}
+
+	@Test
+	public void testGetReturnsElementForPresentElement() {
+		int itemCount = 3;
+		int containingIndex = 2;
+		
+		LinkedList<String> newList = listWithNItems(itemCount);
+		
+		String element = fabricateElementForIndex(containingIndex);
+		assertEquals(element, newList.get(containingIndex));
 	}
 }
