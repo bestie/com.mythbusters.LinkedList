@@ -7,12 +7,14 @@ import org.junit.Test;
 
 public class LinkedListTest {
 	private LinkedList<String> emptyList() {
-		return new LinkedList<String>();
+		return listWithNItems(0);
     }
 	
-	private LinkedList<String> listWithItem() {
-		LinkedList<String> newList = emptyList();
-		newList.add("I am an element");
+	private LinkedList<String> listWithNItems(int n) {
+		LinkedList<String> newList = new LinkedList<String>();
+		for (int i = 0; i < n; i++) {
+			newList.add("I am element " + n);
+		}
 		return newList;
 	}
 	
@@ -23,12 +25,11 @@ public class LinkedListTest {
 	
 	@Test
 	public void testListWithItemIsNotEmpty() {
-		assertEquals(false, listWithItem().isEmpty());
+		assertEquals(false, listWithNItems(1).isEmpty());
 	}
 	
 	@Test
 	public void testListWithItemHasSizeOne() {
-		assertEquals(1, listWithItem().size());
+		assertEquals(1, listWithNItems(1).size());
 	}
-	
 }
